@@ -53,9 +53,10 @@ jobs:
           key: ${{env.SSH_PRIVATE_KEY}}
           script: |
             cd blue_green/
+            echo hai
             echo $IMAGE
 
-            sudo sed -i "s|image: arifbudianto/*|image: ${IMAGE}|" docker-compose.yml
+            sudo sed -i "s|image: arifbudianto/.*|image: ${IMAGE}|" docker-compose.yml
 
             color=$(grep -o 'proxy_pass http://app_[a-z]*;' nginx/nginx.conf | head -1)
 
