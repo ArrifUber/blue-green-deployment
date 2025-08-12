@@ -59,10 +59,10 @@ jobs:
 
             color=$(grep -o 'proxy_pass http://app_[a-z]*;' nginx/nginx.conf | head -1)
 
-            if [ "$color" =  "proxy_pass http://app_blue*;" ]; then
+            if [ "$color" =  "proxy_pass http://app_blue;" ]; then
               sudo sed -i 's|proxy_pass http://app_blue;|proxy_pass http://app_green;|' nginx/nginx.conf
             else
-              sudo sed -i 's|proxy_pass http://app_green;|proxy_pass http://app_blue;/' nginx/nginx.conf
+              sudo sed -i 's|proxy_pass http://app_green;|proxy_pass http://app_blue;|' nginx/nginx.conf
             fi
 
             sudo docker exec nginx nginx -s reload
