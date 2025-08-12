@@ -45,14 +45,13 @@ jobs:
 
       - name: Executing remote command using ssh
         uses: appleboy/ssh-action@v1
-        env:
-          IMAGE: ${{ secrets.DOCKER_USERNAME }}/blue_green:${{github.ref_name}}
         with:
           host: ${{ env.SSH_HOST }}
           username: ${{ env.SSH_USERNAME }}
           key: ${{env.SSH_PRIVATE_KEY}}
           script: |
             cd blue_green/
+            export IMAGE=${{ secrets.DOCKER_USERNAME }}/blue_green:${{github.ref_name}}
             echo hai
             echo $IMAGE
 
