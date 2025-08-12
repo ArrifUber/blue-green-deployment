@@ -55,7 +55,7 @@ jobs:
             cd blue_green/
             echo $IMAGE
 
-            sudo sed -i "s|image: arifbudianto/*|image: ${$IMAGE}|" docker-compose.yml
+            sudo sed -i "s|image: arifbudianto/*|image: ${IMAGE}|" docker-compose.yml
 
             color=$(grep -o 'proxy_pass http://app_[a-z]*;' nginx/nginx.conf | head -1)
 
