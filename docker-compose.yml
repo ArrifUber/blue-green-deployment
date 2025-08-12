@@ -1,9 +1,9 @@
 services:
   blue:
-    build: ./blue
+    build: ./deploy
     container_name: blue
   green:
-    build: ./green
+    build: ./deploy
     container_name: green
   nginx:
     image: nginx:alpine

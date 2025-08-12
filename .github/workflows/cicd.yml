@@ -1,0 +1,48 @@
+name: Blue Green Deployment
+
+on:
+  push:
+    tags:
+      - "v*"
+
+env:
+  SSH_PRIVATE_KEY: ${{secert.SSH_KEY}}
+  DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+  DOCKER_PASSWORD: ${{ secrets.DOCKER_TOKEN }}
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Get tags version
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+
+      - name: Check tags 
+        run: echo $RELEASE_VERSION
+
+      - name: Create SSH key
+        run: |
+          echo "${SSH_PRIVATE_KEY}" > vockey.pem
+          chmod 400 vockey.pem
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${DOCKER_USERNAME}
+          password: ${DOCKER_PASSWORD}
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/blue_green:$RELEASE_VERSION
+
+
+    
