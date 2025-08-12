@@ -6,7 +6,9 @@ on:
       - "v*"
 
 env:
-  SSH_PRIVATE_KEY: ${{secrets.SSH_KEY}}
+  SSH_HOST: ${{  secrets.SSH_SERVER_IP  }}
+  SSH_USERNAME: ${{secrets.SSH_USERNAME}}
+  SSH_PRIVATE_KEY: ${{ secrets.SSH_KEY }}
   DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
   DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
 
@@ -16,11 +18,6 @@ jobs:
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
-
-      - name: Create SSH key
-        run: |
-          echo "${SSH_PRIVATE_KEY}" > vockey.pem
-          chmod 400 vockey.pem
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
@@ -38,6 +35,37 @@ jobs:
           file: ./deploy/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/blue_green:${{github.ref_name}}
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [build-and-push]
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Executing remote command using ssh
+        uses: appleboy/ssh-action@v1
+        env:
+          IMAGE: ${{ secrets.DOCKER_USERNAME }}/blue_green:${{github.ref_name}}
+        with:
+          host: ${{ env.SSH_HOST }}
+          username: ${{ env.SSH_USERNAME }}
+          key: ${{env.SSH_PRIVATE_KEY}}
+          script: |
+            cd blue_green/
+            echo $IMAGE
+
+            sed -i 's|image: arifbudianto/*|image: $IMAGE|' docker-compose.yml
+
+            color=$(grep -o 'proxy_pass http://app_[a-z]*;' nginx/nginx.conf | head -1)
+
+            if ["$color" =  "proxy_pass http://app_blue*;"]; then
+              sed -i 's/proxy_pass http:/\/\app_blue;proxy_pass http:/\/\app_green;/' nginx/nginx.conf
+            else
+              sed -i 's/proxy_pass http:/\/\app_green;proxy_pass http:/\/\app_blue;/' nginx/nginx.conf
+            fi
+
+            docker exec nginx nginx -s reload
 
 
     
