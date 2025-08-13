@@ -9,7 +9,7 @@ def ping():
 
 @app.route("/")
 def index():
-    return "Hello, World! v1", 200
+    return "Hello, World! v2", 200
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
