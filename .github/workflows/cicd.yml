@@ -63,10 +63,12 @@ jobs:
               sudo docker compose down green
               sudo docker compose up -d green
               sudo sed -i 's|proxy_pass http://app_blue;|proxy_pass http://app_green;|' nginx/nginx.conf
+              echo green
             else
               sudo docker compose down blue
               sudo docker compose up -d blue
               sudo sed -i 's|proxy_pass http://app_green;|proxy_pass http://app_blue;|' nginx/nginx.conf
+              echo blue
             fi
 
             sudo docker exec nginx nginx -s reload
