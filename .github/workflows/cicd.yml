@@ -52,21 +52,19 @@ jobs:
           script: |
             cd blue_green/
             export IMAGE=${{ secrets.DOCKER_USERNAME }}/blue_green:${{github.ref_name}}
-            echo hai
-            echo $IMAGE
 
             sudo sed -i "s|image: arifbudianto/.*|image: ${IMAGE}|" docker-compose.yml
 
             color=$(grep -o 'proxy_pass http://app_[a-z]*;' nginx/nginx.conf | head -1)
 
             if [ "$color" =  "proxy_pass http://app_blue;" ]; then
-              sudo docker compose down green
-              sudo docker compose up -d green
+              sudo docker compose pull green
+              sudo docker compose up -d --pull always green
               sudo sed -i 's|proxy_pass http://app_blue;|proxy_pass http://app_green;|' nginx/nginx.conf
               echo green
             else
-              sudo docker compose down blue
-              sudo docker compose up -d blue
+              sudo docker compose pull green
+              sudo docker compose up -d --pull always green
               sudo sed -i 's|proxy_pass http://app_green;|proxy_pass http://app_blue;|' nginx/nginx.conf
               echo blue
             fi
