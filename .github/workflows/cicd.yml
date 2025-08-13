@@ -61,13 +61,11 @@ jobs:
               sudo docker compose pull green
               sudo docker compose up -d --pull always green
               sudo sed 's|proxy_pass http://app_blue;|proxy_pass http://app_green;|' -i nginx/nginx.conf
-              sudo docker compose up nginx
               echo green
             else
               sudo docker compose pull blue
               sudo docker compose up -d --pull always blue
               sudo sed 's|proxy_pass http://app_green;|proxy_pass http://app_blue;|' -i nginx/nginx.conf
-              sudo docker compose up nginx
               echo blue
             fi
 
