@@ -1,11 +1,15 @@
 services:
   blue:
-    image: arifbudianto/
+    build:
+      context: ./deploy
+      dockerfile: ./Dockerfile
     container_name: blue
     ports:
       - 5001:5000
   green:
-    image: arifbudianto/
+    build:
+      context: ./deploy
+      dockerfile: ./Dockerfile
     container_name: green
     ports:
       - 5002:5000
