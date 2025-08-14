@@ -51,6 +51,7 @@ jobs:
           key: ${{env.SSH_PRIVATE_KEY}}
           script: |
             cd blue_green/
+            sudo docker compose up -d
             export IMAGE=${{ secrets.DOCKER_USERNAME }}/blue_green:${{github.ref_name}}
 
             sudo sed -i "s|image: arifbudianto/.*|image: ${IMAGE}|" docker-compose.yml
@@ -64,16 +65,6 @@ jobs:
               sudo sed 's|proxy_pass http://app_blue;|proxy_pass http://app_green;|' -i nginx/nginx.conf
               sudo docker exec nginx sh -c "sed 's|proxy_pass http://app_blue;|proxy_pass http://app_green;|' /etc/nginx/nginx.conf > /tmp/nginx.conf && cat /tmp/nginx.conf > /etc/nginx/nginx.conf"
 
-              for i in {1..10}; do
-                if curl -f http://127.0.0.1:5002/health; then
-                  echo "Container is healthy!"
-                  break
-                else
-                  echo "Waiting for container to be ready..."
-                  sleep 5
-                fi
-              done
-              
               echo green
             else
               sudo docker compose pull blue
@@ -81,16 +72,6 @@ jobs:
 
               sudo sed 's|proxy_pass http://app_green;|proxy_pass http://app_blue;|' -i nginx/nginx.conf
               sudo docker exec nginx sh -c "sed 's|proxy_pass http://app_green;|proxy_pass http://app_blue;|' /etc/nginx/nginx.conf > /tmp/nginx.conf && cat /tmp/nginx.conf > /etc/nginx/nginx.conf"
-
-              for i in {1..10}; do
-                if curl -f http://127.0.0.1:5001/health; then
-                  echo "Container is healthy!"
-                  break
-                else
-                  echo "Waiting for container to be ready..."
-                  sleep 5
-                fi
-              done
 
               echo blue
             fi
