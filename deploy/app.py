@@ -4,7 +4,7 @@ import time
 from datetime import datetime
 app = Flask(__name__)
 
-APP_VERSION = "1.3.8"
+APP_VERSION = "1.3.9"
 
 @app.route("/health")
 def health():
