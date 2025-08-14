@@ -60,15 +60,37 @@ jobs:
             if [ "$color" =  "proxy_pass http://app_blue;" ]; then
               sudo docker compose pull green
               sudo docker compose up -d --pull always green
+
               sudo sed 's|proxy_pass http://app_blue;|proxy_pass http://app_green;|' -i nginx/nginx.conf
               sudo docker exec nginx sh -c "sed 's|proxy_pass http://app_blue;|proxy_pass http://app_green;|' /etc/nginx/nginx.conf > /tmp/nginx.conf && cat /tmp/nginx.conf > /etc/nginx/nginx.conf && nginx -s reload"
+
+            for i in {1..10}; do
+              if curl -f http://127.0.0.1:5002/health; then
+                echo "Container is healthy!"
+                break
+              else
+                echo "Waiting for container to be ready..."
+                sleep 5
+              fi
+            done
               
               echo green
             else
               sudo docker compose pull blue
               sudo docker compose up -d --pull always blue
+
               sudo sed 's|proxy_pass http://app_green;|proxy_pass http://app_blue;|' -i nginx/nginx.conf
               sudo docker exec nginx sh -c "sed 's|proxy_pass http://app_green;|proxy_pass http://app_blue;|' /etc/nginx/nginx.conf > /tmp/nginx.conf && cat /tmp/nginx.conf > /etc/nginx/nginx.conf && nginx -s reload"
+
+            for i in {1..10}; do
+              if curl -f http://127.0.0.1:5001/health; then
+                echo "Container is healthy!"
+                break
+              else
+                echo "Waiting for container to be ready..."
+                sleep 5
+              fi
+            done
 
               echo blue
             fi
