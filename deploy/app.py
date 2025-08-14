@@ -4,11 +4,11 @@ import time
 from datetime import datetime
 app = Flask(__name__)
 
-APP_VERSION = "1.3.0"
+APP_VERSION = "1.3.1"
 
 @app.route("/health")
 def health():
-    return 200       
+    return jsonify(status="ok"), 200       
 
 @app.route("/")
 def home():
